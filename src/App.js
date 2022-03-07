@@ -1,13 +1,25 @@
 import logo from './logo.svg';
 import './App.css';
+import Show from "./lzy"
+import Go from "./Other"
+import "./maybe.css"
+
 
 function App() {
-  return (
+  return <div>
+     <Show />
+     <Go />
+
+
+  </div>
+ 
+/*   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
+          MAYBE
         </p>
         <a
           className="App-link"
@@ -19,7 +31,7 @@ function App() {
         </a>
       </header>
     </div>
-  );
+  ); */
 }
 
 export default App;
