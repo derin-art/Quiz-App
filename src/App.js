@@ -7,9 +7,7 @@ import Questions from "./quizzical/questions"
 import { data } from 'autoprefixer';
 import uniqueId from "react-id-generator"
 import { v4 as uuid } from 'uuid'
-
-
-console.log(uuid())
+import Option from "./quizzical/options.js"
 
 
 
@@ -19,46 +17,73 @@ function App() {
  const [Data, setData] = React.useState([])
 
 
-let multiple = []
-
-function gitGud(){
-  console.log(Data)
-
-}
-
-
-function handleClick(event){
+ function handleClick(event){
   let newData = []
-  console.log(Data)
   Data.forEach(item =>{
     let newItem = item
-    newItem.friday.forEach(obj =>{
-      if(event.target.questionno === obj.questionNo){
+    console.log(`obj ${item.questionNumber} event ${event.target.dataset.could}`)
+    if(item.questionNumber == event.target.dataset.could){
+      console.log("hey")
+      newItem.friday.forEach(obj =>{
+        if(event.target.no === obj.questionNo){
+          console.log(`event ${event.target.dataset.valuable} obj ${obj.Option}`)
+        }
         if(event.target.id === obj.id){
           obj.isSelected = true
         }
         else{
           obj.isSelected = false
         }
-      }
-    })
+      })
+
+    }
+   
     newData.push(newItem)
   })
   
-  console.log(newData)
+  setData(newData)
 
 }
 
 
+let multiple = []
+
+let optionComp = []
+
+Data.forEach(item =>{
+  let good = []
+  const goodNo = Data.indexOf(item)
+  item.friday.forEach(opt =>{
+    good.push( <Option
+      id = {opt.id}
+      Option = {opt.Option}
+      key = {opt.id}
+      handleClick = {handleClick}
+      questionNo ={goodNo}
+      isSelected = {opt.isSelected}
+      />)
+  })
+  optionComp.push(good)
+})
+
+/* console.log(optionComp) */
+
+
+
+
+
+
+
 
 function getWrongsSelected(ApiData){
-  let no = 0
+ 
   let genghis = []
+  let n = 0
   ApiData.forEach(item => {
-    no = no + 1
+    n = n + 1
     let newArr = []
     for(let i=0;i < item.incorrect_answers.length; i++){
-      newArr.push({ Option:item.incorrect_answers[i], id: uuid(), isSelected: false, questionNo: no, renderSelected: handleClick  })
+      newArr.push({ Option:item.incorrect_answers[i], id: uuid(), isSelected: false, questionNo: n, renderSelected: handleClick  })
     }
    
     newArr.push({...item.rightOption, isSelected: false})
@@ -78,7 +103,7 @@ async function get(){
   const {results} = data
 
   const actualResults = results.map(item =>{
-    return {...item, rightOption: {Option: item.correct_answer, id: goodKey()}
+    return {...item, questionNumber :results.indexOf(item), rightOption: {Option: item.correct_answer, id: goodKey()}
       }
   })
 
@@ -90,7 +115,6 @@ async function get(){
 
   setData(finalData)
  
-
 }
 
 
@@ -117,56 +141,33 @@ function goodKey(){
 
 
   Data.forEach(item =>{
-     multiple.push(<Questions
-      WrongArray = {item.incorrect_answers.map(item =>{
-        return {checkOpt: item, key: uuid()}
-      })}
-      key = {item.correct_answer} 
-      correct = {item.correct_answer} 
-      incorrect={item.incorrect_answers}
-      question = {item.question}
-      isSelected = {item.isSelected}
-      allAnswers = {[...item.friday].sort(()=> Math.random()-0.5)}
-      allQuestions = {[...item.incorrect_answers, item.correct_answer].sort(()=> Math.random()- 0.5)}
-      jet = {gitGud}
-    
-
-
-      
-      />)
-  })
-
-/* 
-  React.useEffect(()=>{
   
-    fetch("https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple")
-    .then(res => res.json())
-    .then(data => {
-        
-      const {results} = data
+     multiple.push(
+      <Questions
+        WrongArray = {item.incorrect_answers.map(item =>{
+          return {checkOpt: item, key: uuid()}
+        })}
+        key = {item.question}
+        renderQuestions = {optionComp[Data.indexOf(item)]}
+        correct = {item.correct_answer} 
+        incorrect={item.incorrect_answers}
+        question = {item.question}
+        isSelected = {item.isSelected}
+        allAnswers = {[...item.friday].sort(()=> Math.random()-0.5)}
+        allQuestions = {[...item.incorrect_answers, item.correct_answer].sort(()=> Math.random()- 0.5)}
+   
       
-     let finalData = []
-      const actualResults = results.map(item =>{
-        return {...item, rightOption: {Option: item.correct_answer, id: goodKey()}
-          }
-      })
-
-      const moreData = getWrongsSelected(actualResults)
-      for(let i =0;i < actualResults.length; i++){
-        finalData.push({...actualResults[i], friday: moreData[i]})
-      }
-      setData(finalData)
+  
+  
+        
+        />
+      )
   })
-}, [])
- */
 
+let addition = []
+for(let i= 0; i < multiple.length; i++){
 
-
-
-
-
-
-
+}
 console.log(Data)
 
 
@@ -180,7 +181,10 @@ console.log(Data)
                       <div className='flex flex-col justify-center items-center'>
                           <h1 className='mb-6 text-6xl text-gray-700'>Quizzical</h1>
                           <p className='text-md mb-4 text-gray-700 capitalize'>a fun quiz game for the family</p>
-                          <button className='text-2xl p-4 px-10 text-blue-100 bg-blue-600 rounded-xl font-bold capitalize hover:bg-blue-800' onClick={start}>start quiz</button>
+
+                          <button className='text-2xl p-4 px-10 text-blue-100 
+                          bg-blue-600 rounded-xl font-bold 
+                          capitalize hover:bg-blue-800' onClick={start}>start quiz</button>
                       </div>
 
 
@@ -190,7 +194,9 @@ console.log(Data)
                     {multiple}
                    
                     </div>
-                    <button className='capitalize bg-transparent border border-indigo-700 text-indigo-700 font-bold rounded-lg hover:border-indigo-700 hover:bg-indigo-700 hover:text-white text-center px-6 py-3'>check answers</button>
+                    <button className='capitalize bg-transparent border border-indigo-700 text-indigo-700 
+                    font-bold rounded-lg hover:border-indigo-700 hover:bg-indigo-700 hover:text-white 
+                    text-center px-6 py-3 mt-6'>check answers</button>
                   </div>
                   
               <Bottom />
