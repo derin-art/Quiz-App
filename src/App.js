@@ -1,37 +1,201 @@
 import logo from './logo.svg';
-import './App.css';
-import Show from "./lzy"
-import Go from "./Other"
 import "./maybe.css"
+import React from 'react';
+import Top from "./quizzical/topSvg.js"
+import Bottom from "./quizzical/bottomSvg.js"
+import Questions from "./quizzical/questions"
+import { data } from 'autoprefixer';
+import uniqueId from "react-id-generator"
+import { v4 as uuid } from 'uuid'
+
+
+console.log(uuid())
+
+
+
 
 
 function App() {
-  return <div>
-     <Show />
-     <Go />
+ const [Data, setData] = React.useState([])
 
 
-  </div>
+let multiple = []
+
+function gitGud(){
+  console.log(Data)
+
+}
+
+
+function handleClick(event){
+  let newData = []
+  console.log(Data)
+  Data.forEach(item =>{
+    let newItem = item
+    newItem.friday.forEach(obj =>{
+      if(event.target.questionno === obj.questionNo){
+        if(event.target.id === obj.id){
+          obj.isSelected = true
+        }
+        else{
+          obj.isSelected = false
+        }
+      }
+    })
+    newData.push(newItem)
+  })
+  
+  console.log(newData)
+
+}
+
+
+
+function getWrongsSelected(ApiData){
+  let no = 0
+  let genghis = []
+  ApiData.forEach(item => {
+    no = no + 1
+    let newArr = []
+    for(let i=0;i < item.incorrect_answers.length; i++){
+      newArr.push({ Option:item.incorrect_answers[i], id: uuid(), isSelected: false, questionNo: no, renderSelected: handleClick  })
+    }
+   
+    newArr.push({...item.rightOption, isSelected: false})
+    genghis.push(newArr)
+  })
+  return genghis
+  }
+  
+
+
+const majorData = []
+
+async function get(){
+  let finalData = []
+  const res = await fetch("https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple")
+  const data = await res.json()
+  const {results} = data
+
+  const actualResults = results.map(item =>{
+    return {...item, rightOption: {Option: item.correct_answer, id: goodKey()}
+      }
+  })
+
+  const moreData = getWrongsSelected(actualResults)
+
+  for(let i =0;i < actualResults.length; i++){
+    finalData.push({...actualResults[i], friday: moreData[i]})
+  }
+
+  setData(finalData)
  
-/*   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-          MAYBE
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  ); */
+
+}
+
+
+React.useState(()=>{
+  get()
+}, [])
+
+
+
+
+
+function goodKey(){
+  return uuid()
+}
+
+
+
+
+
+
+  const [startGame, changeStartGame] = React.useState(false)
+
+  
+
+
+  Data.forEach(item =>{
+     multiple.push(<Questions
+      WrongArray = {item.incorrect_answers.map(item =>{
+        return {checkOpt: item, key: uuid()}
+      })}
+      key = {item.correct_answer} 
+      correct = {item.correct_answer} 
+      incorrect={item.incorrect_answers}
+      question = {item.question}
+      isSelected = {item.isSelected}
+      allAnswers = {[...item.friday].sort(()=> Math.random()-0.5)}
+      allQuestions = {[...item.incorrect_answers, item.correct_answer].sort(()=> Math.random()- 0.5)}
+      jet = {gitGud}
+    
+
+
+      
+      />)
+  })
+
+/* 
+  React.useEffect(()=>{
+  
+    fetch("https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple")
+    .then(res => res.json())
+    .then(data => {
+        
+      const {results} = data
+      
+     let finalData = []
+      const actualResults = results.map(item =>{
+        return {...item, rightOption: {Option: item.correct_answer, id: goodKey()}
+          }
+      })
+
+      const moreData = getWrongsSelected(actualResults)
+      for(let i =0;i < actualResults.length; i++){
+        finalData.push({...actualResults[i], friday: moreData[i]})
+      }
+      setData(finalData)
+  })
+}, [])
+ */
+
+
+
+
+
+
+
+
+console.log(Data)
+
+
+  function start(){
+    changeStartGame(!startGame)
+  }
+
+  return <main className= {`text-sm bg-pink-100 h-screen flex flex-col justify-between overflow-hidden`}>
+              <Top />
+                  <div className= {`w-full justify-center items-center flex ${startGame && "hidden"}`}>
+                      <div className='flex flex-col justify-center items-center'>
+                          <h1 className='mb-6 text-6xl text-gray-700'>Quizzical</h1>
+                          <p className='text-md mb-4 text-gray-700 capitalize'>a fun quiz game for the family</p>
+                          <button className='text-2xl p-4 px-10 text-blue-100 bg-blue-600 rounded-xl font-bold capitalize hover:bg-blue-800' onClick={start}>start quiz</button>
+                      </div>
+
+
+                  </div>
+                  <div className={` ${!startGame && "hidden"} w-screen flex justify-center items-center flex-col`}>
+                    <div className='w-5/6 text-left'>
+                    {multiple}
+                   
+                    </div>
+                    <button className='capitalize bg-transparent border border-indigo-700 text-indigo-700 font-bold rounded-lg hover:border-indigo-700 hover:bg-indigo-700 hover:text-white text-center px-6 py-3'>check answers</button>
+                  </div>
+                  
+              <Bottom />
+      </main>
+
 }
 
 export default App;
