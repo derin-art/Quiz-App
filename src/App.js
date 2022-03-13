@@ -15,6 +15,8 @@ import Option from "./quizzical/options.js"
 
 function App() {
  const [Data, setData] = React.useState([])
+ const [check, setCheck] =React.useState(false)
+ 
 
 
  function handleClick(event){
@@ -46,6 +48,21 @@ function App() {
 }
 
 
+
+function checkCorrect(){
+  let score = 0
+  Data.forEach(item =>{
+    item.friday.forEach(obj =>{
+      if(obj.isSelected && obj.id == item.rightOption.id ){
+        score = score + 1
+      }
+    })
+  })
+ 
+  return `Your score is ${score}/5`
+
+}
+
 let multiple = []
 
 let optionComp = []
@@ -61,6 +78,8 @@ Data.forEach(item =>{
       handleClick = {handleClick}
       questionNo ={goodNo}
       isSelected = {opt.isSelected}
+      checked = {check}
+      isRightOption = {opt.isRightOption}
       />)
   })
   optionComp.push(good)
@@ -83,11 +102,12 @@ function getWrongsSelected(ApiData){
     n = n + 1
     let newArr = []
     for(let i=0;i < item.incorrect_answers.length; i++){
-      newArr.push({ Option:item.incorrect_answers[i], id: uuid(), isSelected: false, questionNo: n, renderSelected: handleClick  })
+      newArr.push({ Option:item.incorrect_answers[i], id: uuid(), isSelected: false, 
+        questionNo: n, renderSelected: handleClick, isRightOption : false })
     }
    
-    newArr.push({...item.rightOption, isSelected: false})
-    genghis.push(newArr)
+    newArr.push({...item.rightOption, isSelected: false, isRightOption : true})
+    genghis.push(newArr.sort(()=> Math.random()- 0.5))
   })
   return genghis
   }
@@ -112,7 +132,7 @@ async function get(){
   for(let i =0;i < actualResults.length; i++){
     finalData.push({...actualResults[i], friday: moreData[i]})
   }
-
+  setCheck(prev => false)
   setData(finalData)
  
 }
@@ -175,6 +195,9 @@ console.log(Data)
     changeStartGame(!startGame)
   }
 
+
+  
+
   return <main className= {`text-sm bg-pink-100 h-screen flex flex-col justify-between overflow-hidden`}>
               <Top />
                   <div className= {`w-full justify-center items-center flex ${startGame && "hidden"}`}>
@@ -194,11 +217,15 @@ console.log(Data)
                     {multiple}
                    
                     </div>
+                    <div className='flex justify-center items-center'>
                     <button className='capitalize bg-transparent border border-indigo-700 text-indigo-700 
                     font-bold rounded-lg hover:border-indigo-700 hover:bg-indigo-700 hover:text-white 
-                    text-center px-6 py-3 mt-6'>check answers</button>
+                    text-center px-6 py-3 mt-6 mr-4' onClick={check ? ()=>{get()} : ()=>{setCheck(check=> !check)} }>{check ? "New Game" : "check answers"}</button>
+                     {check && <div className='mt-4 text-lg text-blue-500 font-semibold'>{checkCorrect()}</div>}
+
+                    </div>
                   </div>
-                  
+                 
               <Bottom />
       </main>
 
