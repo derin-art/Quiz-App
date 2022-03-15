@@ -8,6 +8,10 @@ import { data } from 'autoprefixer';
 import uniqueId from "react-id-generator"
 import { v4 as uuid } from 'uuid'
 import Option from "./quizzical/options.js"
+import {decode} from "html-entities"
+
+
+
 
 
 
@@ -123,7 +127,7 @@ async function get(){
   const {results} = data
 
   const actualResults = results.map(item =>{
-    return {...item, questionNumber :results.indexOf(item), rightOption: {Option: item.correct_answer, id: goodKey()}
+    return {...item, questionNumber :results.indexOf(item), rightOption: {Option: decode(item.correct_answer), id: goodKey()}
       }
   })
 
@@ -198,7 +202,7 @@ console.log(Data)
 
   
 
-  return <main className= {`text-sm bg-pink-100 h-screen flex flex-col justify-between overflow-hidden`}>
+  return <main className= {`text-sm bg-purple-200  md:h-screen h-screen flex flex-col justify-between overflow-x-hidden`}>
               <Top />
                   <div className= {`w-full justify-center items-center flex ${startGame && "hidden"}`}>
                       <div className='flex flex-col justify-center items-center'>
@@ -212,16 +216,16 @@ console.log(Data)
 
 
                   </div>
-                  <div className={` ${!startGame && "hidden"} w-screen flex justify-center items-center flex-col`}>
+                  <div className={` ${!startGame && "hidden"} w-screen flex justify-center items-center flex-col mt-12 md:mt-0`}>
                     <div className='w-5/6 text-left'>
                     {multiple}
                    
                     </div>
-                    <div className='flex justify-center items-center'>
+                    <div className='flex flex-col md:flex-row justify-center items-center'>
                     <button className='capitalize bg-transparent border border-indigo-700 text-indigo-700 
                     font-bold rounded-lg hover:border-indigo-700 hover:bg-indigo-700 hover:text-white 
                     text-center px-6 py-3 mt-6 mr-4' onClick={check ? ()=>{get()} : ()=>{setCheck(check=> !check)} }>{check ? "New Game" : "check answers"}</button>
-                     {check && <div className='mt-4 text-lg text-blue-500 font-semibold'>{checkCorrect()}</div>}
+                     {check && <div className='mt-4 text-lg text-gray-600 font-bold capitalize'>{checkCorrect()}</div>}
 
                     </div>
                   </div>
